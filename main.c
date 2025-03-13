@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-#define L 10
+#define L 60
 
 int ip[L], im[L];
 
@@ -85,6 +85,18 @@ double EnergyDensity(int spin[L][L]){
   return -(double)E/(double)(L*L);
 }
 
+double MagnetizationDensity(int spin[L][L]){
+  int M;
+  M = 0;
+  for (int i = 0; i < L; i++){
+    for (int j = 0; j < L; j++){
+      M += spin[i][j];
+    }
+  }
+  return (double)abs(M)/(double)(L*L);
+}
+
+
 void sweeps(int spin[L][L], double T){
   for (int i = 0; i < L; i++){
     for (int j = 0; j < L; j++){
@@ -130,17 +142,23 @@ int main(){
   FILE *DataFile = fopen("measurements.dat","w");
   FILE *ParametersFile = fopen("parameters.txt","r");
 
-  printf("Nt = ");
-  scanf("Nt=%i",&Nt);
-  printf("Nskip = ");
-  scanf("%i",&Nskip);
-  printf("Nmeas = ");
-  scanf("%i",&Nmeas);
-  printf("Nterm = ");
-  scanf("%i",&Nterm);
+  
+  fscanf(ParametersFile,"Nt=%d\n",&Nt);
+  fscanf(ParametersFile,"Nskip=%d\n",&Nskip);
+  fscanf(ParametersFile,"Nmeas=%d\n",&Nmeas);
+  fscanf(ParametersFile,"Nterm=%d\n",&Nterm);
 
+  printf("L = %d\n", L);
+  printf("Nt = %d\n",Nt);    
+  printf("Nskip = %d\n",Nskip);
+  printf("Nmeas = %d\n",Nmeas);
+  printf("Nterm = %d\n",Nterm);
+  
   double* T = (double*) malloc(Nt * sizeof(double));
   double* E = (double*) malloc(Nmeas * sizeof(double));
+  double* M = (double*) malloc(Nmeas * sizeof(double));
+    
+
   srand(time(NULL));
 
   //pbc
@@ -164,8 +182,9 @@ int main(){
     for (int i_sweep = 0; i_sweep < Nmeas; i_sweep++){
       for( int i_skip = 0; i_skip < Nskip; i_skip++){sweeps(spin,T[it]);}
       E[i_sweep] = EnergyDensity(spin);
+      M[i_sweep] = MagnetizationDensity(spin);
     }
-    fprintf(DataFile,"%.15f %.15f %.15f\n",T[it],avr(Nmeas,E),std_err(Nmeas,E));
+    fprintf(DataFile,"%.15f %.15f %.15f %.15f %.15f\n",T[it],avr(Nmeas,E),std_err(Nmeas,E),avr(Nmeas,M),std_err(Nmeas,M));
     
   }
   free(T);
