@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-#define L 100
+#define L 10
 
 int ip[L], im[L];
 
@@ -119,12 +119,28 @@ double std_err(int N, double E[N]){
 int main(){  
   
   int spin[L][L];
-  const int Nt = 10, Nskip = 10, Nmeas = 1000, Nterm = 500;
+  //const int Nt = 10, Nskip = 10, Nmeas = 1000, Nterm = 500;
   double Tmin = 0.1, Tmax = 4.0;
-  double T[Nt], E[Nmeas];
+  
+  int Nt, Nskip, Nmeas, Nterm;
+  //double T[Nt], E[Nmeas];
+ 
+  
   
   FILE *DataFile = fopen("measurements.dat","w");
+  FILE *ParametersFile = fopen("parameters.txt","r");
 
+  printf("Nt = ");
+  scanf("Nt=%i",&Nt);
+  printf("Nskip = ");
+  scanf("%i",&Nskip);
+  printf("Nmeas = ");
+  scanf("%i",&Nmeas);
+  printf("Nterm = ");
+  scanf("%i",&Nterm);
+
+  double* T = (double*) malloc(Nt * sizeof(double));
+  double* E = (double*) malloc(Nmeas * sizeof(double));
   srand(time(NULL));
 
   //pbc
@@ -152,7 +168,8 @@ int main(){
     fprintf(DataFile,"%.15f %.15f %.15f\n",T[it],avr(Nmeas,E),std_err(Nmeas,E));
     
   }
-
+  free(T);
+  free(E);
   return 0;
 }
 
